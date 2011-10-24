@@ -40,8 +40,6 @@ function! nonopaste#Nonopaste(count, line1, line2, ...)
   let body       = join(getline(a:line1, a:line2), "\n")
   let nick       = g:nonopaste_nick
 
-  echon 'Posting it to nonopaste... '
-
   " escape quotation
   let body = substitute(body, '"', '\\"', "g")
 
@@ -49,6 +47,8 @@ function! nonopaste#Nonopaste(count, line1, line2, ...)
                   \ . ' --form-string "body=' . body . '"'
 
   let cmd = s:curl_cmd . ' ' . post_data . ' ' . s:url
+
+  echon 'Posting it to nonopaste... '
 
   let res      = system(cmd)
   let headers  = split(res, '\(\r\?\n\|\r\n\?\)')
