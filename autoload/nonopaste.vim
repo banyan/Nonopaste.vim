@@ -56,7 +56,6 @@ function! nonopaste#Nonopaste(count, line1, line2, ...)
   let location = substitute(location, '^[^:]\+: ', '', '')
   if len(location) > 0
     redraw
-    let @*=location
     echomsg 'Done: ' . location
   else
     let message = matchstr(headers, '^Status: ')
