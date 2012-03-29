@@ -34,16 +34,11 @@ if !exists('g:nonopaste_url')
   let g:nonopaste_url = "http://www.kazeburo.dotcloud.com"
 endif
 
-if !exists('g:nonopaste_confirm')
-  let g:nonopaste_confirm = ""
-endif
-
 function! nonopaste#Nonopaste(count, line1, line2, ...)
   let s:curl_cmd = 'curl -i'
   let s:url      = g:nonopaste_url . "/add"
   let body       = join(getline(a:line1, a:line2), "\n")
   let nick       = g:nonopaste_nick
-  let confirm    = g:nonopaste_confirm
 
   " escape quotation
   let body = substitute(body, '"', '\\"', "g")
@@ -51,17 +46,12 @@ function! nonopaste#Nonopaste(count, line1, line2, ...)
   let post_data = ' --form-string "nick=' . nick . '"'
                   \ . ' --form-string "body=' . body . '"'
 
-  if confirm == "true"
-    let confirm = input("are you sure ? (y/n [n]): ")
-      if confirm == "y"
-        let cmd = s:curl_cmd . ' ' . post_data . ' ' . s:url
-      else
-        echo ""
-        return
-      endif
-  else
-    let cmd = s:curl_cmd . ' ' . post_data . ' ' . s:url
+  let confirm = input("Are you sure to post? [" . s:url . "] (y/n [n]): ")
+  if confirm != "y"
+    echo ""
+    return
   endif
+  let cmd = s:curl_cmd . ' ' . post_data . ' ' . s:url
 
   echon 'Posting it to nonopaste... '
 
