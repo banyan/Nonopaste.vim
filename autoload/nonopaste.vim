@@ -56,6 +56,7 @@ function! nonopaste#Nonopaste(count, line1, line2, ...)
       if confirm == "y"
         let cmd = s:curl_cmd . ' ' . post_data . ' ' . s:url
       else
+        echo ""
         return
       endif
   else
