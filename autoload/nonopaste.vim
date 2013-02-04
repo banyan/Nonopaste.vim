@@ -34,6 +34,46 @@ if !exists('g:nonopaste_url')
   let g:nonopaste_url = "http://www.kazeburo.dotcloud.com"
 endif
 
+function! s:get_browser_command()
+  let nonopaste_browser_command = get(g:, 'nonopaste_browser_command', '')
+  if nonopaste_browser_command == ''
+    if has('win32') || has('win64')
+      let nonopaste_browser_command = '!start rundll32 url.dll,FileProtocolHandler %URL%'
+    elseif has('mac') || has('macunix') || has('gui_macvim') || system('uname') =~? '^darwin'
+      let nonopaste_browser_command = 'open %URL%'
+    elseif executable('xdg-open')
+      let nonopaste_browser_command = 'xdg-open %URL%'
+    elseif executable('firefox')
+      let nonopaste_browser_command = 'firefox %URL% &'
+    else
+      let nonopaste_browser_command = ''
+    endif
+  endif
+  return nonopaste_browser_command
+endfunction
+
+function! s:open_browser(location)
+  let cmd = s:get_browser_command()
+  if len(cmd) == 0
+    redraw
+    echohl WarningMsg
+    echo "It seems that you don't have general web browser. Open URL below."
+    echohl None
+    echo a:location
+    return
+  endif
+  if cmd =~ '^!'
+    let cmd = substitute(cmd, '%URL%', '\=shellescape(a:location)', 'g')
+    silent! exec cmd
+  elseif cmd =~ '^:[A-Z]'
+    let cmd = substitute(cmd, '%URL%', '\=a:location', 'g')
+    exec cmd
+  else
+    let cmd = substitute(cmd, '%URL%', '\=shellescape(a:location)', 'g')
+    call system(cmd)
+  endif
+endfunction
+
 function! nonopaste#Nonopaste(count, line1, line2, ...)
   let s:curl_cmd = 'curl -i'
   let s:url      = g:nonopaste_url . "/add"
@@ -65,6 +105,11 @@ function! nonopaste#Nonopaste(count, line1, line2, ...)
       let @*=location
     endif
     echomsg 'Done: ' . location
+
+    if get(g:, 'nonopaste_open_browser_after_post', 0) == 1
+      call s:open_browser(location)
+    endif
+
   else
     let message = matchstr(headers, '^Status: ')
     let message = substitute(message, '^[^:]\+: [0-9]\+ ', '', '')

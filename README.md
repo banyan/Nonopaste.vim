@@ -31,6 +31,10 @@ default url is "http://www.kazeburo.dotcloud.com".
 
     let g:nonopaste_url = "http://nonopaste.local"
 
+If you want to open the browser after the post
+
+    let g:nonopaste_open_browser_after_post = 1
+
 Requirements:
 --------
 
